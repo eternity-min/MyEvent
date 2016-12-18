@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myevent.dao.MyEventMapper">
+
+    <select id="findCategory" parameterType="String" resultType="MyEvent">
+        SELECT category1
+             , category2
+             , category3
+             , name as keyword
+          FROM category_keyword A
+             , (SELECT A.id
+                     , A.sort_no
+                     , A.name as category3
+                     , B.name as category2
+                     , C.name as category1
+                     , concat(C.name , ' - ', B.name, ' - ', A.name) full_category
+                  FROM category A
+                  LEFT JOIN category B ON B.id = A.parent_id
+                  LEFT JOIN category C ON C.id = B.parent_id
+                 WHERE A.level = 3) B
+         WHERE A.category_id = B.id
+           AND A.name = #{value}
+    </select>
+
+    <select id="listCategoryByLevel" parameterType="int" resultType="Category">
+        SELECT id
+             , name
+             , level
+             , sort_no as sortNo
+             , parent_id as parentId
+          FROM category
+         WHERE level = #{value}
+         ORDER BY sort_no, name
+    </select>
+
+    <select id="findMyEventById" parameterType="String" resultType="MyEvent">
+        SELECT id
+             , ical_uid as iCalUid
+             , keyword
+             , category1
+             , category2
+             , category3
+             , requester
+             , content
+             , sr_id as srId
+             , subsystem
+             , created_date as createdDate
+             , modified_date as modifiedDate
+          FROM myevent
+         WHERE id = #{value}
+    </select>
+
+    <insert id="saveMyEvent" parameterType="MyEvent">
+        INSERT INTO myevent (
+                    id
+                  , ical_uid
+                  , keyword
+                  , category1
+                  , category2
+                  , category3
+                  , requester
+                  , content
+                  , sr_id
+                  , subsystem
+                  )
+             VALUES (
+                    #{id}
+                  , #{iCalUid}
+                  , #{keyword}
+                  , #{category1}
+                  , #{category2}
+                  , #{category3}
+                  , #{requester}
+                  , #{content}
+                  , #{srId}
+                  , #{subsystem}
+                    )
+                 ON DUPLICATE KEY
+             UPDATE keyword       = #{keyword}
+                  , category1     = #{category1}
+                  , category2     = #{category2}
+                  , category3     = #{category3}
+                  , requester     = #{requester}
+                  , content       = #{content}
+                  , sr_id         = #{srId}
+                  , subsystem     = #{subsystem}
+                  , modified_date = now()
+    </insert>
+
+    <insert id="saveGoogleEvent" parameterType="GoogleEvent">
+        INSERT INTO googleevent (
+                    id
+                  , ical_uid
+                  , etag
+                  , start
+                  , end
+                  , kind
+                  , creator_email
+                  , summary
+                  , description
+                  , location
+                  , html_link
+                  , created
+                  , updated
+                  )
+           VALUES (
+                    #{id}
+                  , #{iCalUid}
+                  , #{etag}
+                  , #{start}
+                  , #{end}
+                  , #{kind}
+                  , #{creatorEmail}
+                  , #{summary}
+                  , #{description}
+                  , #{location}
+                  , #{htmlLink}
+                  , #{created}
+                  , #{updated}
+                  )
+                 ON DUPLICATE KEY
+             UPDATE etag          = #{etag}
+                  , start         = #{start}
+                  , end           = #{end}
+                  , kind          = #{kind}
+                  , creator_email = #{creatorEmail}
+                  , summary       = #{summary}
+                  , description   = #{description}
+                  , location      = #{location}
+                  , html_link     = #{htmlLink}
+                  , created       = #{created}
+                  , updated       = #{updated}
+    </insert>
+
+    <delete id="removeMyEventById">
+        DELETE FROM myevent WHERE id = ${value}
+    </delete>
+
+    <delete id="removeGoogleEventById">
+        DELETE FROM googleevent WHERE id = ${value}
+    </delete>
+
+    <select id="listMyEventWithGoogleEvent" parameterType="MyEvent" resultType="MyEvent">
+        SELECT A.id
+             , A.ical_uid as iCalUid
+             , A.etag
+             , A.start
+             , A.end
+             , A.kind
+             , A.creator_email
+             , A.summary
+             , A.description
+             , A.location
+             , A.html_link
+             , A.created
+             , A.updated
+             , keyword
+             , category1
+             , category2
+             , category3
+             , requester
+             , content
+             , sr_id as srId
+             , subsystem
+             , created_date as createdDate
+             , modified_date as modifiedDate
+          FROM googleevent A
+             , myevent B
+         WHERE A.id = B.id
+           AND (   A.start BETWEEN #{start} AND #{end}
+                OR A.end BETWEEN #{start} AND #{end})
+    </select>
+</mapper>
