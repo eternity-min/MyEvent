@@ -169,5 +169,6 @@
          WHERE A.id = B.id
            AND (   A.start BETWEEN #{start} AND #{end}
                 OR A.end BETWEEN #{start} AND #{end})
+         ORDER BY A.start
     </select>
 </mapper>

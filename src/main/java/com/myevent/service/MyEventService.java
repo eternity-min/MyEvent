@@ -1,21 +1,20 @@
 package com.myevent.service;
 
-import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.Events;
 import com.myevent.dao.MyEventMapper;
 import com.myevent.domain.Category;
 import com.myevent.domain.MyEvent;
 import com.myevent.util.GoogleCalendarUtils;
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -94,5 +93,32 @@ public class MyEventService {
         param.setStart(start);
         param.setEnd(end);
         return myEventMapper.listMyEventWithGoogleEvent(param);
+    }
+
+    public List<MyEvent> listMyEventWithMinutes(Date start, Date end) {
+        List<MyEvent> myEvents = listMyEvent(start, end);
+        List<MyEvent> list = new ArrayList<MyEvent>();
+        for(MyEvent item : myEvents) {
+            Date startDate = DateUtils.truncate(item.getStart(), Calendar.DATE);
+            Date endDate = DateUtils.truncate(item.getEnd(), Calendar.DATE);
+            int day = Math.round((endDate.getTime() - startDate.getTime()) / 1000 / 60 / 60 / 24);
+
+            if(day == 0) {
+                item.calculateMinutes();
+                list.add(item);
+                continue;
+            }
+
+            for(int i = 0 ; i < day; i++) {
+                MyEvent event = ObjectUtils.clone(item);
+                event.setStart(i == 0 ? item.getStart() : DateUtils.truncate(DateUtils.addDays(item.getStart(), i), Calendar.DATE));
+                event.setEnd(i == day - 1 ? item.getEnd() : DateUtils.truncate(DateUtils.addDays(event.getStart(), 1), Calendar.DATE));
+                event.calculateMinutes();
+
+                list.add(event);
+            }
+        }
+
+        return list;
     }
 }

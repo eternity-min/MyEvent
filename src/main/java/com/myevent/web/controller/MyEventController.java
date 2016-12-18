@@ -31,25 +31,25 @@ import java.util.List;
  * Created by hope on 2016. 12. 16..
  */
 @Controller
-@RequestMapping("/myevent")
+@RequestMapping("/calendar")
 public class MyEventController {
 
     @Autowired
     private MyEventService myEventService;
 
-    @RequestMapping("/list")
-    public String list(Model model, String searchStart, String searchEnd) throws Exception {
+    @RequestMapping("/event/local/list")
+    public String listLocalEvents(Model model, String searchStart, String searchEnd) throws Exception {
         String[] datePattern = new String[]{"yyyyMMddhhmmss", "yyyy-MM-dd hh:mm:ss", "yyyyMMdd", "yyyy-MM-dd"};
         Date start = StringUtils.isBlank(searchStart) ? new Date() : DateUtils.parseDate(searchStart, datePattern);
         Date end = StringUtils.isBlank(searchEnd) ? new Date() : DateUtils.parseDate(searchEnd, datePattern);
 
-        List<MyEvent> myEvents = myEventService.listMyEvent(start, end);
+        List<MyEvent> myEvents = myEventService.listMyEventWithMinutes(start, end);
 
         model.addAttribute("myEvents", myEvents);
-        return "myEvent/list";
+        return "calendar/event/listLocal";
     }
 
-    @RequestMapping("/listGoogleEvents")
+    @RequestMapping("/event/google/list")
     public String listGoogleEvents(Model model, String searchStart, String searchEnd) throws IOException, ParseException {
         String[] datePattern = new String[]{"yyyyMMddhhmmss", "yyyy-MM-dd hh:mm:ss", "yyyyMMdd", "yyyy-MM-dd"};
         Date start = StringUtils.isBlank(searchStart) ? new Date() : DateUtils.parseDate(searchStart, datePattern);
@@ -69,22 +69,22 @@ public class MyEventController {
         model.addAttribute("category1s", myEventService.listCategoryByLevel(1));
         model.addAttribute("category2s", myEventService.listCategoryByLevel(2));
         model.addAttribute("category3s", myEventService.listCategoryByLevel(3));
-        return "myEvent/listGoogleEvents";
+        return "calendar/event/listGoogle";
     }
 
-    @RequestMapping("/saveGoogleEventsToMyCalendar")
-    public String saveGoogleEventsToMyCalendar(Model model, String searchStart, String searchEnd, String[] checkedIds) throws IOException, ParseException {
+    @RequestMapping("/event/local/save")
+    public String saveGoogleEventsToLocal(Model model, String searchStart, String searchEnd, String[] checkedIds) throws IOException, ParseException {
         String[] datePattern = new String[]{"yyyyMMddhhmmss", "yyyy-MM-dd hh:mm:ss", "yyyyMMdd", "yyyy-MM-dd"};
         Date start = DateUtils.parseDate(searchStart, datePattern);
         Date end = DateUtils.parseDate(searchEnd, datePattern);
         myEventService.saveGoogleEventsToMyCalendar(start, end, checkedIds);
 
-        return "redirect:/myevent/listGoogleEvents?searchStart=" + searchStart + "&searchEnd=" + searchEnd;
+        return "redirect:/calendar/event/google/list?searchStart=" + searchStart + "&searchEnd=" + searchEnd;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/modifyGoogleEvent", headers = "Accept=application/json")
-    public MyEvent modifyGoogleEventSummary(String id, String summary) throws IOException {
+    @RequestMapping(value = "/event/google/updateSummary", headers = "Accept=application/json")
+    public MyEvent updateSummaryForGoogleEvent(String id, String summary) throws IOException {
         return myEventService.convertToMyEvent(GoogleCalendarUtils.updateSummary(id, summary));
     }
 

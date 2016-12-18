@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
-public class MyEvent extends GoogleEvent {
+public class MyEvent extends GoogleEvent implements Cloneable {
     private String keyword;
     private String category1;
     private String category2;
@@ -16,6 +16,8 @@ public class MyEvent extends GoogleEvent {
     private String subsystem;
     private Date createdDate;
     private Date modifiedDate;
+
+    private int minutes;
 
     public MyEvent() {
 
@@ -140,5 +142,18 @@ public class MyEvent extends GoogleEvent {
 
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+
+    public int getMinutes() {
+        return minutes;
+    }
+
+    public void calculateMinutes() {
+        this.minutes = Math.round((getEnd().getTime() - getStart().getTime()) / 1000 / 60);
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        MyEvent a = (MyEvent)super.clone();
+        return a;
     }
 }
