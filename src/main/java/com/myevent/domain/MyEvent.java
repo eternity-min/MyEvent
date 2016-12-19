@@ -31,15 +31,6 @@ public class MyEvent extends GoogleEvent implements Cloneable {
         String header = StringUtils.substringBetween(summary, "[", "]");
         String body = StringUtils.remove(summary, "[" + header + "]");
 
-        if ("ITRM".equalsIgnoreCase(StringUtils.trim(event.getSummary()))) {
-            setKeyword("ITRM");
-            setSrId("미발행");
-            setSubsystem("E-Commerce");
-            setContent(summary);
-            setRequester("민선호");
-            return;
-        }
-
         header = StringUtils.trim(header);
         body = StringUtils.trim(body);
         String[] headers = StringUtils.splitByWholeSeparatorPreserveAllTokens(header, ";");

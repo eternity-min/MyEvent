@@ -46,6 +46,13 @@ public class MyEventService {
             myEvent.setCategory1(category.getCategory1());
             myEvent.setCategory2(category.getCategory2());
             myEvent.setCategory3(category.getCategory3());
+
+            myEvent.setContent(StringUtils.defaultIfBlank(myEvent.getContent(), "ITRM".equals(myEvent.getKeyword()) ? myEvent.getKeyword() : myEvent.getCategory3()));
+            if("SR관리".equals(myEvent.getCategory1())) {
+                myEvent.setSubsystem(StringUtils.defaultIfBlank(myEvent.getSubsystem(), "E-Commerce"));
+                myEvent.setSrId(StringUtils.defaultIfBlank(myEvent.getSrId(), "미발행"));
+            }
+
         }
 
         return myEvent;
