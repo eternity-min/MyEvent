@@ -66,9 +66,9 @@ public class MyEventController {
         }
 
         model.addAttribute("myEvents", myEvents);
-        model.addAttribute("category1s", myEventService.listCategoryByLevel(1));
-        model.addAttribute("category2s", myEventService.listCategoryByLevel(2));
-        model.addAttribute("category3s", myEventService.listCategoryByLevel(3));
+//        model.addAttribute("category1s", myEventService.listCategoryByLevel(1));
+//        model.addAttribute("category2s", myEventService.listCategoryByLevel(2));
+//        model.addAttribute("category3s", myEventService.listCategoryByLevel(3));
         return "calendar/event/listGoogle";
     }
 
@@ -79,7 +79,7 @@ public class MyEventController {
         Date end = DateUtils.parseDate(searchEnd, datePattern);
         myEventService.saveGoogleEventsToMyCalendar(start, end, checkedIds);
 
-        return "redirect:/calendar/event/google/list?searchStart=" + searchStart + "&searchEnd=" + searchEnd;
+        return "redirect:/calendar/event/local/list?searchStart=" + searchStart + "&searchEnd=" + searchEnd;
     }
 
     @ResponseBody

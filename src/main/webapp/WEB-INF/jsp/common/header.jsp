@@ -17,6 +17,8 @@
     <!-- Bootstrap core CSS     -->
     <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
 
+    <link href="/assets/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+
     <!-- Animation library for notifications   -->
     <link href="/assets/css/animate.min.css" rel="stylesheet"/>
 
@@ -26,7 +28,6 @@
 
     <!--  CSS for Demo Purpose, don't include it in your project     -->
     <link href="/assets/css/demo.css" rel="stylesheet" />
-
 
     <!--     Fonts and icons     -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
@@ -47,18 +48,24 @@
     <script src="/assets/js/bootstrap-notify.js"></script>
 
     <!--  Google Maps Plugin    -->
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <!--script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script-->
+
+    <script src="/assets/js/moment-with-locales.min.js"></script>
 
     <!-- Light Bootstrap Table Core javascript and methods for Demo purpose -->
     <script src="/assets/js/light-bootstrap-dashboard.js"></script>
 
     <!-- Light Bootstrap Table DEMO methods, don't include it in your project! -->
     <script src="/assets/js/demo.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.0.0/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.2/moment-with-locales.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.0.0/js/bootstrap-datetimepicker.min.js"></script>
 </head>
 <body>
 
 <div class="wrapper">
-    <div class="sidebar" data-color="purple" data-image="/assets/img/sidebar-5.jpg">
+    <div style="display:none;" class="sidebar" data-color="purple" data-image="/assets/img/sidebar-5.jpg">
 
         <!--   you can change the color of the sidebar using: data-color="blue | azure | green | orange | red | purple" -->
 
@@ -123,7 +130,7 @@
         </div>
     </div>
 
-    <div class="main-panel">
+    <div class="_main-panel">
         <nav class="navbar navbar-default navbar-fixed">
             <div class="container-fluid">
                 <div class="navbar-header">

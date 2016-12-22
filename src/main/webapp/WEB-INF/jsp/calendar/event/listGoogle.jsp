@@ -13,68 +13,133 @@
                         기간:
                         <input type="date" name="searchStart" class="date-picker" value="${param.searchStart}"/> ~
                         <input type="date" name="searchEnd" class="date-picker" value="${param.searchEnd}"/>
-                        <button >검색</button>
-                        <button onclick="document.dataForm.submit(); return false;">저장</button>
+                        <button type="submit" >검색</button>
                     </form>
                 </p>
             </div>
-            <div class="content table-responsive table-full-width">
-                <form name="dataForm" action="/myevent/local/save" method="post">
+            <div class="content">
+                <select id="isValidFilter">
+                    <option></option>
+                    <option>O</option>
+                    <option>X</option>
+                </select>
+                <button type="button" onclick="document.dataForm.submit(); return false;">저장</button>
+
+                <form name="dataForm" action="/calendar/event/local/save" method="post">
                     <input type="hidden" name="searchStart" value="${param.searchStart}" readonly/>
                     <input type="hidden" name="searchEnd" value="${param.searchEnd}" readonly/>
-                    <table class="table table-hover table-striped">
-                        <thead>
-                        <tr>
-                            <th>
-                                <select id="isValidFilter" onchange="isValidFilterOnChange();">
-                                    <option></option>
-                                    <option>O</option>
-                                    <option>X</option>
-                                </select>
-                            </th>
-                            <th>summary</th>
-                            <th>keyword</th>
-                            <th>category</th>
-                            <th>subsystem</th>
-                            <th>srId</th>
-                            <th>requester</th>
-                            <th>content</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <c:forEach items="${myEvents}" var="item" varStatus="status">
-                            <c:set var="isValid" value="${not empty item.category1 and not empty item.category2 and not empty item.category3}"/>
+                    <p class="content table-responsive table-full-width">
+                        <table style="font-size:0.8em;" class="table table-hover table-striped">
+                            <thead>
                             <tr>
-                                <td>
-                                    <input type="checkbox" name="isValid" onclick="return false;" <c:if test="${isValid}">checked</c:if>/>
-                                    <button onclick="updateSummary(this);return false;">변경</button>
-                                </td>
-                                <td>
-                                    <fmt:formatDate value="${item.start}" pattern="MM-dd HH:mm"/> -
-                                    <fmt:formatDate value="${item.end}" pattern="MM-dd HH:mm"/>
-                                    : ${item.location} <br/>
-                                    <textarea name="summary">${item.summary}</textarea>
-                                    <input type="hidden" name="id" value="${item.id}"/>
-                                    <input type="hidden" name="icalUid" value="${item.iCalUid}"/>
-                                </td>
-                                <td>${item.keyword}</td>
-                                <td>${item.category1} - ${item.category2} - ${item.category3}</td>
-                                <td>${item.subsystem}</td>
-                                <td>${item.srId}</td>
-                                <td>${item.requester}</td>
-                                <td><textarea name="summary">${item.content}</textarea></td>
-
+                                <th>date</th>
+                                <th>summary</th>
+                                <th>category</th>
+                                <th>subsystem</th>
+                                <th>srId</th>
+                                <th>requester</th>
+                                <th>content</th>
                             </tr>
-                        </c:forEach>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            <c:forEach items="${myEvents}" var="item" varStatus="status">
+                                <c:set var="isValid" value="${not empty item.category1 and not empty item.category2 and not empty item.category3}"/>
+                                <c:set var="startDate"><fmt:formatDate value="${item.start}" pattern="MM-dd"/></c:set>
+                                <c:set var="endDate"><fmt:formatDate value="${item.end}" pattern="MM-dd"/></c:set>
+                                <tr>
+                                    <td style="vertical-align: top;">
+                                        ${startDate}
+                                        <c:if test="${startDate ne endDate}">
+                                            <br/>-  ${endDate}
+                                        </c:if>
+                                    </td>
+                                    <td style="vertical-align: top;">
+                                        <fmt:formatDate value="${item.start}" pattern="HH:mm"/> -
+                                        <fmt:formatDate value="${item.end}" pattern="HH:mm"/>
+                                        <br/>
+
+                                        <textarea name="summary" style="width:100%;" class="<c:if test="${not isValid}"> text-danger</c:if>">${item.summary}</textarea>
+                                        <span name="keyword">${item.keyword}</span>
+                                        <br/>
+                                        <button type="button" name="btnUpdateSummary" class="btn-block pe-7s-cloud-upload "></button>
+
+                                        <c:if test="${not empty item.location}">${item.location}</c:if>
+
+                                        <input type="hidden" name="id" value="${item.id}"/>
+                                        <input type="hidden" name="icalUid" value="${item.iCalUid}"/>
+                                    </td>
+                                    <td name="category">${item.category1} - ${item.category2} - ${item.category3}</td>
+                                    <td name="subsystem">${item.subsystem}</td>
+                                    <td name="srId">${item.srId}</td>
+                                    <td name="requester">${item.requester}</td>
+                                    <td><textarea name="content" style="width:100%;">${item.content}</textarea></td>
+                                </tr>
+                            </c:forEach>
+                            </tbody>
+                        </table>
+                    </p>
                 </form>
+
             </div>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
+    $(document).ready(function() {
+        $('[name=btnUpdateSummary]').click(function() {
+            $tr = $(this).parents('tr');
+
+            var data = {
+                id: $tr.find('[name=id]').val()
+                , iCalUid: $tr.find('[name=icalUid]').val()
+                , summary: $tr.find('[name=summary]').val()
+            };
+            console.log(data);
+
+            $.post( "/calendar/event/google/updateSummary", data)
+                    .done(function( data ) {
+                        alert( "Success!!");
+                        $tr.find('[name=keyword]').text(data.keyword);
+                        $tr.find('[name=category]').text(data.category1 + '-' + data.category2 + '-' + data.category3);
+                        $tr.find('[name=subsystem]').text(data.subsystem);
+                        $tr.find('[name=srId]').text(data.srId);
+                        $tr.find('[name=requester]').text(data.requester);
+                        $tr.find('[name=summary]').text(data.content);
+                    });
+        });
+
+        $('#isValidFilter').change(function() {
+            if($(this).val() == "O") {
+                $('.isNotValid').each(function() {
+                    $(this).parents('tr').hide();
+                });
+
+                $('.isValid').each(function() {
+                    $(this).parents('tr').show();
+                });
+            }
+            else if($(this).val() == "O") {
+                $('.isNotValid').each(function() {
+                    $(this).parents('tr').show();
+                });
+
+                $('.isValid').each(function() {
+                    $(this).parents('tr').hide();
+                });
+            }
+            else {
+                $('.isNotValid').each(function() {
+                    $(this).parents('tr').show();
+                });
+
+                $('.isValid').each(function() {
+                    $(this).parents('tr').show();
+                });
+            }
+        });
+    });
+
     function isValidFilterOnChange() {
         var value = $('#isValidFilter').val();
 
@@ -93,26 +158,6 @@
                 }
             }
         });
-    }
-
-    function search() {
-
-    }
-
-    function updateSummary(obj) {
-        var tr = obj.parentNode.parentNode;
-        var data = {
-              id: $(tr).find('[name=id]').val()
-            , iCalUid: $(tr).find('[name=icalUid]').val()
-            , summary: $(tr).find('[name=summary]').val()
-        };
-        console.log(data);
-
-        $.post( "/calendar/event/google/updateSummary", data)
-            .done(function( data ) {
-                alert( "Data Loaded: " + data );
-                console.log(data);
-            });
     }
 </script>
 
