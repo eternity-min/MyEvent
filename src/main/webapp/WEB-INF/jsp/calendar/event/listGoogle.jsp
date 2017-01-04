@@ -3,6 +3,10 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <c:import url="../../common/header.jsp"/>
 
+<style>
+    tr.event_not_valid textarea {color: red;}
+</style>
+
 <div class="row">
     <div class="col-md-12">
         <div class="card">
@@ -14,72 +18,69 @@
                         <input type="date" name="searchStart" class="date-picker" value="${param.searchStart}"/> ~
                         <input type="date" name="searchEnd" class="date-picker" value="${param.searchEnd}"/>
                         <button type="submit" >검색</button>
+                        <button type="button" onclick="document.dataForm.submit(); return false;">저장</button>
                     </form>
                 </p>
             </div>
-            <div class="content">
-                <select id="isValidFilter">
-                    <option></option>
-                    <option>O</option>
-                    <option>X</option>
-                </select>
-                <button type="button" onclick="document.dataForm.submit(); return false;">저장</button>
-
+            <div class="content table-responsive table-full-width">
                 <form name="dataForm" action="/calendar/event/local/save" method="post">
                     <input type="hidden" name="searchStart" value="${param.searchStart}" readonly/>
                     <input type="hidden" name="searchEnd" value="${param.searchEnd}" readonly/>
-                    <p class="content table-responsive table-full-width">
-                        <table style="font-size:0.8em;" class="table table-hover table-striped">
-                            <thead>
-                            <tr>
-                                <th>date</th>
-                                <th>summary</th>
-                                <th>category</th>
-                                <th>subsystem</th>
-                                <th>srId</th>
-                                <th>requester</th>
-                                <th>content</th>
+
+                    <select id="isValidFilter">
+                        <option>전체</option>
+                        <option>O</option>
+                        <option>X</option>
+                    </select>
+                    <table style="font-size:0.8em;" class="table table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th>date</th>
+                            <th>summary</th>
+                            <th>category</th>
+                            <th>subsystem</th>
+                            <th>srId</th>
+                            <th>requester</th>
+                            <th>content</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <c:forEach items="${myEvents}" var="item" varStatus="status">
+                            <c:set var="isValid" value="${not empty item.category1 and not empty item.category2 and not empty item.category3}"/>
+                            <c:set var="startDate"><fmt:formatDate value="${item.start}" pattern="MM-dd"/></c:set>
+                            <c:set var="endDate"><fmt:formatDate value="${item.end}" pattern="MM-dd"/></c:set>
+                            <tr class="event_<c:if test="${not isValid}">not_</c:if>valid">
+                                <td style="vertical-align: top;">
+                                    ${startDate}
+                                    <c:if test="${startDate ne endDate}">
+                                        <br/>-  ${endDate}
+                                    </c:if>
+                                </td>
+                                <td style="vertical-align: top;">
+                                    <fmt:formatDate value="${item.start}" pattern="HH:mm"/> -
+                                    <fmt:formatDate value="${item.end}" pattern="HH:mm"/>
+                                    <br/>
+
+                                    <textarea name="summary" style="width:100%;">${item.summary}</textarea>
+                                    <span name="keyword">${item.keyword}</span>
+                                    <br/>
+                                    <button type="button" name="btnUpdateSummary" class="btn-block pe-7s-cloud-upload "></button>
+
+                                    <c:if test="${not empty item.location}">${item.location}</c:if>
+
+                                    <input type="hidden" name="id" value="${item.id}"/>
+                                    <input type="hidden" name="icalUid" value="${item.iCalUid}"/>
+                                </td>
+                                <td name="category">${item.category1} - ${item.category2} - ${item.category3}</td>
+                                <td name="subsystem">${item.subsystem}</td>
+                                <td name="srId">${item.srId}</td>
+                                <td name="requester">${item.requester}</td>
+                                <td><textarea name="content" style="width:100%;">${item.content}</textarea></td>
                             </tr>
-                            </thead>
-                            <tbody>
-                            <c:forEach items="${myEvents}" var="item" varStatus="status">
-                                <c:set var="isValid" value="${not empty item.category1 and not empty item.category2 and not empty item.category3}"/>
-                                <c:set var="startDate"><fmt:formatDate value="${item.start}" pattern="MM-dd"/></c:set>
-                                <c:set var="endDate"><fmt:formatDate value="${item.end}" pattern="MM-dd"/></c:set>
-                                <tr>
-                                    <td style="vertical-align: top;">
-                                        ${startDate}
-                                        <c:if test="${startDate ne endDate}">
-                                            <br/>-  ${endDate}
-                                        </c:if>
-                                    </td>
-                                    <td style="vertical-align: top;">
-                                        <fmt:formatDate value="${item.start}" pattern="HH:mm"/> -
-                                        <fmt:formatDate value="${item.end}" pattern="HH:mm"/>
-                                        <br/>
-
-                                        <textarea name="summary" style="width:100%;" class="<c:if test="${not isValid}"> text-danger</c:if>">${item.summary}</textarea>
-                                        <span name="keyword">${item.keyword}</span>
-                                        <br/>
-                                        <button type="button" name="btnUpdateSummary" class="btn-block pe-7s-cloud-upload "></button>
-
-                                        <c:if test="${not empty item.location}">${item.location}</c:if>
-
-                                        <input type="hidden" name="id" value="${item.id}"/>
-                                        <input type="hidden" name="icalUid" value="${item.iCalUid}"/>
-                                    </td>
-                                    <td name="category">${item.category1} - ${item.category2} - ${item.category3}</td>
-                                    <td name="subsystem">${item.subsystem}</td>
-                                    <td name="srId">${item.srId}</td>
-                                    <td name="requester">${item.requester}</td>
-                                    <td><textarea name="content" style="width:100%;">${item.content}</textarea></td>
-                                </tr>
-                            </c:forEach>
-                            </tbody>
-                        </table>
-                    </p>
+                        </c:forEach>
+                        </tbody>
+                    </table>
                 </form>
-
             </div>
         </div>
     </div>
@@ -110,32 +111,14 @@
         });
 
         $('#isValidFilter').change(function() {
+            $('tr.event_valid').show();
+            $('tr.event_not_valid').show();
+
             if($(this).val() == "O") {
-                $('.isNotValid').each(function() {
-                    $(this).parents('tr').hide();
-                });
-
-                $('.isValid').each(function() {
-                    $(this).parents('tr').show();
-                });
+                $('tr.event_not_valid').hide();
             }
-            else if($(this).val() == "O") {
-                $('.isNotValid').each(function() {
-                    $(this).parents('tr').show();
-                });
-
-                $('.isValid').each(function() {
-                    $(this).parents('tr').hide();
-                });
-            }
-            else {
-                $('.isNotValid').each(function() {
-                    $(this).parents('tr').show();
-                });
-
-                $('.isValid').each(function() {
-                    $(this).parents('tr').show();
-                });
+            else if($(this).val() == "X") {
+                $('tr.event_valid').hide();
             }
         });
     });
