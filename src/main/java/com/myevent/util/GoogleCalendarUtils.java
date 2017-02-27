@@ -3,10 +3,12 @@ package com.myevent.util;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.GoogleUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
@@ -17,10 +19,16 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 import org.springframework.stereotype.Component;
 
+import javax.net.ssl.*;
+import javax.security.cert.CertificateException;
+import javax.security.cert.X509Certificate;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -63,8 +71,47 @@ public class GoogleCalendarUtils {
     private static final List<String> SCOPES = Arrays.asList(CalendarScopes.CALENDAR);
 
     static {
+//        System.setProperty("http.proxyHost", "72.50.150.6");
+//        System.setProperty("http.proxyPort", "8080");
+//        System.setProperty("https.proxyHost", "72.50.150.6");
+//        System.setProperty("https.proxyPort", "8080");
+//
+        TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                        //No need to implement.
+                    }
+
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                        //No need to implement.
+                    }
+                }
+        };
+//
+//        // Install the all-trusting trust manager
+//        try {
+//            SSLContext sc = SSLContext.getInstance("TLS"); // SSL or TSL
+//            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+//            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+//        } catch (Exception e) {
+//            System.out.println(e);
+//        }
+
         try {
-            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            //HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            SSLContext sc = SSLContext.getInstance("SSL"); // SSL or TSL
+            sc.init(null, trustAllCerts, null);
+
+            HTTP_TRANSPORT = new NetHttpTransport.Builder()
+                    .setProxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("72.50.150.6", 8080)))
+                    .trustCertificates(GoogleUtils.getCertificateTrustStore())
+                    .setSslSocketFactory(sc.getSocketFactory())
+                    .build();
+
             DATA_STORE_DIR = new File(GoogleCalendarUtils.class.getResource("/google").toURI());
             DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
         } catch (Throwable t) {

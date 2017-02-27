@@ -1,3 +1,56 @@
+drop table googleevent;
+create table googleevent (
+  id nvarchar(100),
+  ical_uid nvarchar(100),
+  etag nvarchar(20),
+  start datetime not null,
+  end datetime not null,
+  kind nvarchar(50),
+  creator_email nvarchar(4000),
+  summary nvarchar(4000),
+  description text,
+  location nvarchar(4000),
+  html_link varchar(4000),
+  created datetime not null,
+  updated datetime not null,
+  primary key (id, ical_uid)
+) engine=InnoDB default charset=utf8;
+
+drop table myevent;
+create table myevent (
+  id nvarchar(100),
+  ical_uid nvarchar(100),
+  keyword nvarchar(1000),
+  category1 nvarchar(1000),
+  category2 nvarchar(1000),
+  category3 nvarchar(1000),
+  requester nvarchar(100),
+  content text,
+  sr_id nvarchar(20),
+  subsystem nvarchar(100),
+  created_date datetime not null default now(),
+  modified_date datetime not null default now(),
+  primary key (id, ical_uid)
+) engine=InnoDB default charset=utf8;
+
+drop table category;
+create table category (
+  id MEDIUMINT not null auto_increment,
+  name nvarchar(100) not null,
+  level INTEGER not null default 0,
+  sort_no integer default 10,
+  parent_id MEDIUMINT not null default 0,
+  primary key (id)
+) engine=InnoDB default charset=utf8;
+
+drop table category_keyword;
+create table category_keyword (
+  name nvarchar(100) not null UNIQUE,
+  category_id MEDIUMINT not null default 0,
+  primary key (name)
+) engine=InnoDB default charset=utf8;
+
+
 truncate table category;
 INSERT INTO category(id, parent_id, name, level, sort_no) values ('1', '0', 'SR관리', '1', '10');
 INSERT INTO category(id, parent_id, name, level, sort_no) values ('2', '0', '운영관리', '1', '20');
@@ -64,9 +117,9 @@ INSERT INTO category_keyword(name, category_id) values('문의응대-오류', '1
 INSERT INTO category_keyword(name, category_id) values('문의응대-기타', '18');	INSERT INTO category_keyword(name, category_id) values('기타요청', '18');
 INSERT INTO category_keyword(name, category_id) values('간단-Data요청', '19');	INSERT INTO category_keyword(name, category_id) values('Data요청', '19');
 INSERT INTO category_keyword(name, category_id) values('간단-Data수정', '20');	INSERT INTO category_keyword(name, category_id) values('Data수정', '20');
-INSERT INTO category_keyword(name, category_id) values('간단-변경분석/설계', '21');	INSERT INTO category_keyword(name, category_id) values('변경분석/설계', '21');	INSERT INTO category_keyword(name, category_id) values('분석/설계', '21');
+INSERT INTO category_keyword(name, category_id) values('간단-변경분석/설계', '21');	INSERT INTO category_keyword(name, category_id) values('변경분석/설계', '21');	INSERT INTO category_keyword(name, category_id) values('분석/설계', '21'); INSERT INTO category_keyword(name, category_id) values('분석설계', '21'); INSERT INTO category_keyword(name, category_id) values('회의', '21');
 INSERT INTO category_keyword(name, category_id) values('간단-변경개발', '22');	INSERT INTO category_keyword(name, category_id) values('변경개발', '22');	INSERT INTO category_keyword(name, category_id) values('개발', '22');
-INSERT INTO category_keyword(name, category_id) values('간단-변경테스트/이관', '23');	INSERT INTO category_keyword(name, category_id) values('변경테스트/이관', '23');	INSERT INTO category_keyword(name, category_id) values('테스트/이관', '23');
+INSERT INTO category_keyword(name, category_id) values('간단-변경테스트/이관', '23');	INSERT INTO category_keyword(name, category_id) values('변경테스트/이관', '23');	INSERT INTO category_keyword(name, category_id) values('테스트/이관', '23'); INSERT INTO category_keyword(name, category_id) values('테스트', '23'); INSERT INTO category_keyword(name, category_id) values('이관', '23');
 INSERT INTO category_keyword(name, category_id) values('간단-신규분석/설계', '24');	INSERT INTO category_keyword(name, category_id) values('신규분석/설계', '24');
 INSERT INTO category_keyword(name, category_id) values('간단-신규개발', '25');	INSERT INTO category_keyword(name, category_id) values('신규개발', '25');
 INSERT INTO category_keyword(name, category_id) values('간단-신규테스트/이관', '26');	INSERT INTO category_keyword(name, category_id) values('신규테스트/이관', '26');
@@ -110,3 +163,4 @@ INSERT INTO category_keyword(name, category_id) values('데이터수정', '20');
 INSERT INTO category_keyword(name, category_id) values('일반-분석/설계', '30');	INSERT INTO category_keyword(name, category_id) values('일반-분석설계', '30');
 INSERT INTO category_keyword(name, category_id) values('일반-개발', '31');
 INSERT INTO category_keyword(name, category_id) values('일반-테스트/이관', '32');
+INSERT INTO category_keyword(name, category_id) values('당직근무', '37');

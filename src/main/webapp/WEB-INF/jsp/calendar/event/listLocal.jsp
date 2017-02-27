@@ -43,6 +43,7 @@
                                 <th>SR/CR</th>
                                 <th>요청자</th>
                                 <th>내용</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -54,10 +55,14 @@
                                         <fmt:formatDate value="${item.end}" pattern="MM-dd HH:mm"/>
                                     </td>
                                     <td>${item.minutes}</td>
-                                    <td>${item.category1} - ${item.category2} - ${item.category3}</td>
+                                    <td>
+                                        ${item.category1} - ${item.category2} - ${item.category3}
+                                        <c:if test="${not empty item.subsystem}"><br/>(${item.subsystem})</c:if>
+                                    </td>
                                     <td>${item.srId}</td>
                                     <td>${item.requester}</td>
                                     <td><textarea>${item.content}</textarea></td>
+                                    <td><a href="#" onclick="openMh('<fmt:formatDate value="${item.start}" pattern="yyyyMMdd"/>');">등록</a></td>
                                 </tr>
                             </c:forEach>
                             </tbody>
@@ -69,6 +74,7 @@
     </div>
 </div>
 
+<!--iframe id="frame" src="http://mh.co.kr:18100/eversys.do?method=checkSys1&jobDate=20170201" width="100%" height="600"></iframe-->
 
 <script type="text/javascript">
     function change(obj) {
@@ -85,6 +91,13 @@
                     alert( "Data Loaded: " + data );
                     console.log(data);
                 });
+    }
+
+    function openMh(name) {
+        var win = window.open("http://72.2.180.132:18100/eversys.do?method=checkSys1&jobDate=" + name, name, "width=800, height=500");
+        //win.close();
+        win.open("javascript:alert(1);");
+
     }
 </script>
 <c:import url="../../common/footer.jsp"/>

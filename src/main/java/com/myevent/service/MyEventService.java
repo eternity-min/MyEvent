@@ -5,6 +5,7 @@ import com.myevent.dao.MyEventMapper;
 import com.myevent.domain.Category;
 import com.myevent.domain.MyEvent;
 import com.myevent.util.GoogleCalendarUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -24,14 +25,16 @@ public class MyEventService {
     @Autowired
     private MyEventMapper myEventMapper;
 
+    private static final String[] REQUIRED_SUBSYSTEM_CATEGORY1 = new String[]{"운영관리", "SR관리"};
+
     public List<MyEvent> listEventsFromGoogleCalendar(Date start, Date end) throws IOException {
         List<MyEvent> list = new ArrayList<MyEvent>();
         List<Event> items = GoogleCalendarUtils.listEvent(start, end);
 
         for (Event item : items) {
-            if (item.getId().equals("0s5ukr3f7g0qev1s1rnnt63n1o")) {
-                continue;
-            }
+//            if (item.getId().equals("0s5ukr3f7g0qev1s1rnnt63n1o")) {
+//                continue;
+//            }
 
             list.add(convertToMyEvent(item));
         }
@@ -42,14 +45,15 @@ public class MyEventService {
     public MyEvent convertToMyEvent(Event event) {
         MyEvent myEvent = new MyEvent(event);
         MyEvent category = findCategory(myEvent.getKeyword());
+
         if (category != null) {
             myEvent.setCategory1(category.getCategory1());
             myEvent.setCategory2(category.getCategory2());
             myEvent.setCategory3(category.getCategory3());
 
             myEvent.setContent(StringUtils.defaultIfBlank(myEvent.getContent(), "ITRM".equals(myEvent.getKeyword()) ? myEvent.getKeyword() : myEvent.getCategory3()));
-            if("SR관리".equals(myEvent.getCategory1())) {
-                myEvent.setSubsystem(StringUtils.defaultIfBlank(myEvent.getSubsystem(), "E-Commerce"));
+            if(ArrayUtils.contains(REQUIRED_SUBSYSTEM_CATEGORY1, myEvent.getCategory1())) {
+                myEvent.setSubsystem(StringUtils.defaultIfBlank(myEvent.getSubsystem(), "인터넷면세점(e-Commerce)"));
                 myEvent.setSrId(StringUtils.defaultIfBlank(myEvent.getSrId(), "미발행"));
             }
 

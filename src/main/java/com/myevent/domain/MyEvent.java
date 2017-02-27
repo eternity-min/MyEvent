@@ -144,7 +144,7 @@ public class MyEvent extends GoogleEvent implements Cloneable {
     }
 
     public Object clone() throws CloneNotSupportedException {
-        MyEvent a = (MyEvent)super.clone();
+        MyEvent a = (MyEvent) super.clone();
         return a;
     }
 }

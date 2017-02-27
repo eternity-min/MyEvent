@@ -3,7 +3,12 @@ buildscript {
 		springBootVersion = '1.4.2.RELEASE'
 	}
 	repositories {
-		mavenCentral()
+//		mavenCentral()
+		repositories {
+			maven {
+				url "http://repo1.maven.org/maven2"
+			}
+		}
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -22,7 +27,12 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+	//mavenCentral()
+	repositories {
+		maven {
+			url "http://repo1.maven.org/maven2"
+		}
+	}
 }
 
 
@@ -44,4 +54,11 @@ dependencies {
 	compile('com.google.api-client:google-api-client:1.22.0')
 	compile('com.google.oauth-client:google-oauth-client-jetty:1.22.0')
 	compile('com.google.apis:google-api-services-calendar:v3-rev221-1.22.0')
+
+	compile("org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16")
+	compile("org.logback-extensions:logback-ext-spring:0.1.2")
+
+	// seleninum
+	testCompile("org.seleniumhq.selenium:selenium-java")
+	testCompile group:'junit',name:'junit',version:'4.+'
 }
